@@ -1,0 +1,2 @@
+variable "myip" {}
+variable "keypair" {}
