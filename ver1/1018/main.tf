@@ -195,7 +195,6 @@ output "web-publicip" {
   value = aws_instance.web.public_ip
 }
 
-# 찾아서하기
 data "aws_ami" "al-recent" {
   most_recent = true
 
