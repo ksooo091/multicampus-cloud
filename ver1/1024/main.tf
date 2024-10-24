@@ -234,6 +234,7 @@ resource "aws_lb_target_group" "lab-tg" {
   vpc_id   = aws_vpc.lab-vpc.id
   health_check {
     path = "/"
+    protocol            = "HTTP"
   }
 }
 
@@ -269,3 +270,4 @@ resource "aws_lb_listener" "alb_listner" {
     target_group_arn = aws_lb_target_group.lab-tg.arn
   }
 }
+
