@@ -136,6 +136,10 @@ EOF
 monitoring = true
 disable_api_termination = true
 
+root_block_device {
+  volume_size = 10
+}
+
 }
 
 
