@@ -172,7 +172,7 @@ resource "aws_instance" "windows" {
 user_data = <<EOF
 <powershell>
 Install-WindowsFeature -name Web-Server -IncludeManagementTools
-New-Item -Path C:\inetpub\wwwroot\index.html -ItemType File -Value "<html><head><title>Windows Web server</title></head><body><h1>TEAM: EC2 김길수</h1></body></html>" -Force
+New-Item -Path C:\inetpub\wwwroot\index.html -ItemType File -Value "<html><head><title>Windows Web server</title></head><body><h1>TEAM: EC2 kgs</h1></body></html>" -Force
 </powershell>
 EOF
 
@@ -221,7 +221,7 @@ apt-get install -y apache2
 systemctl start apache2
 systemctl enable apache2
 
-echo "<h1>TEAM: EC2 김길수</h1>" > /var/www/html/index.html
+echo "<h1>TEAM: EC2 kgs</h1>" > /var/www/html/index.html
 EOF
 
 
