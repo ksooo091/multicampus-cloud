@@ -372,16 +372,28 @@ resource "aws_instance" "was" {
   vpc_security_group_ids = [aws_security_group.was.id]
 
   user_data = <<EOF
-#!/bin/bash
-sleep 30
+    #!/bin/bash
+    
+    sleep 30
+    yum  update -y
+    yum install java-17-amazon-corretto.x86_64 -y
 
-timedatectl set-timezone Asia/Seoul
 
-dnf update
-dnf install java-17-amazon-corretto.x86_64 -y
-dnf install git -y
+    yum install git -y
+    git clone https://github.com/spring-projects/spring-petclinic.git
 
-EOF
+    cat > /root/spring-petclinic/src/main/resources/application-mysql.properties <<MYSQLCONFIG
+    database=mysql
+    spring.datasource.url=\$${MYSQL_URL:jdbc:mysql://${aws_db_instance.db.endpoint}/${aws_db_instance.db.db_name}}
+    spring.datasource.username=\$${MYSQL_USER:${aws_db_instance.db.username}}
+    spring.datasource.password=\$${MYSQL_PASS:${aws_db_instance.db.password}}
+    spring.sql.init.mode=always
+    MYSQLCONFIG
+
+    /root/spring-petclinic/mvnw -f /root/spring-petclinic/pom.xml package
+
+    nohup /root/spring-petclinic/mvnw spring-boot:run -Dspring-boot.run.profiles=mysql &
+  EOF
 
   root_block_device {
     volume_size = 8
