@@ -375,11 +375,10 @@ resource "aws_instance" "was" {
     #!/bin/bash
     
     sleep 30
-    yum  update -y
-    yum install java-17-amazon-corretto.x86_64 -y
-
-
-    yum install git -y
+    dnf update
+    dnf install java-17-amazon-corretto.x86_64 -y
+    dnf install git -y
+    
     git clone https://github.com/spring-projects/spring-petclinic.git
 
     cat > /root/spring-petclinic/src/main/resources/application-mysql.properties <<MYSQLCONFIG
