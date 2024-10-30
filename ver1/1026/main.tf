@@ -378,7 +378,7 @@ resource "aws_instance" "was" {
     dnf update
     dnf install java-17-amazon-corretto.x86_64 -y
     dnf install git -y
-    
+
     git clone https://github.com/spring-projects/spring-petclinic.git
 
     cat > /root/spring-petclinic/src/main/resources/application-mysql.properties <<MYSQLCONFIG
@@ -395,7 +395,7 @@ resource "aws_instance" "was" {
   EOF
 
   root_block_device {
-    volume_size = 8
+    volume_size = 20
   }
 }
 
