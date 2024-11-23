@@ -67,10 +67,10 @@ resource "aws_security_group" "was8080" {
 
 
 
-   ingress {
-    from_port   = 8080
-    to_port     = 8080
-    protocol    = "tcp"
+  ingress {
+    from_port       = 8080
+    to_port         = 8080
+    protocol        = "tcp"
     security_groups = [aws_security_group.was-alb.id]
   }
 
@@ -90,16 +90,16 @@ resource "aws_security_group" "was8080" {
 
 
 resource "aws_ecs_service" "app" {
-  name                  = "app"
-  cluster               = aws_ecs_cluster.jobapp.id
-  task_definition       = aws_ecs_task_definition.app.arn
-  desired_count         = 2
-  force_new_deployment  = true
-  launch_type           = "FARGATE"
+  name                 = "app"
+  cluster              = aws_ecs_cluster.jobapp.id
+  task_definition      = aws_ecs_task_definition.app.arn
+  desired_count        = 2
+  force_new_deployment = true
+  launch_type          = "FARGATE"
 
   network_configuration {
-    security_groups  = [aws_security_group.was8080.id]
-    subnets          = aws_subnet.was[*].id
+    security_groups = [aws_security_group.was8080.id]
+    subnets         = aws_subnet.was[*].id
   }
 
   load_balancer {
@@ -108,7 +108,7 @@ resource "aws_ecs_service" "app" {
     container_port   = 8080
   }
 
- 
+
 }
 
 
@@ -142,10 +142,10 @@ resource "aws_security_group" "was8888" {
 
 
 
-   ingress {
-    from_port   = 8888
-    to_port     = 8888
-    protocol    = "tcp"
+  ingress {
+    from_port       = 8888
+    to_port         = 8888
+    protocol        = "tcp"
     security_groups = [aws_security_group.was-alb.id]
   }
 
@@ -165,16 +165,16 @@ resource "aws_security_group" "was8888" {
 
 
 resource "aws_ecs_service" "job" {
-  name                  = "job"
-  cluster               = aws_ecs_cluster.jobapp.id
-  task_definition       = aws_ecs_task_definition.job.arn
-  desired_count         = 2
-  force_new_deployment  = true
-  launch_type           = "FARGATE"
+  name                 = "job"
+  cluster              = aws_ecs_cluster.jobapp.id
+  task_definition      = aws_ecs_task_definition.job.arn
+  desired_count        = 2
+  force_new_deployment = true
+  launch_type          = "FARGATE"
 
   network_configuration {
-    security_groups  = [aws_security_group.was8888.id]
-    subnets          = aws_subnet.was[*].id
+    security_groups = [aws_security_group.was8888.id]
+    subnets         = aws_subnet.was[*].id
   }
 
   load_balancer {
@@ -183,7 +183,7 @@ resource "aws_ecs_service" "job" {
     container_port   = 8888
   }
 
- 
+
 }
 
 
@@ -223,10 +223,10 @@ resource "aws_security_group" "web" {
 
 
 
-   ingress {
-    from_port   = 80
-    to_port     = 80
-    protocol    = "tcp"
+  ingress {
+    from_port       = 80
+    to_port         = 80
+    protocol        = "tcp"
     security_groups = [aws_security_group.web-alb.id]
   }
 
@@ -246,16 +246,16 @@ resource "aws_security_group" "web" {
 
 
 resource "aws_ecs_service" "web" {
-  name                  = "web"
-  cluster               = aws_ecs_cluster.jobapp.id
-  task_definition       = aws_ecs_task_definition.web.arn
-  desired_count         = 2
-  force_new_deployment  = true
-  launch_type           = "FARGATE"
+  name                 = "web"
+  cluster              = aws_ecs_cluster.jobapp.id
+  task_definition      = aws_ecs_task_definition.web.arn
+  desired_count        = 2
+  force_new_deployment = true
+  launch_type          = "FARGATE"
 
   network_configuration {
-    security_groups  = [aws_security_group.web.id]
-    subnets          = aws_subnet.web[*].id
+    security_groups = [aws_security_group.web.id]
+    subnets         = aws_subnet.web[*].id
   }
 
   load_balancer {
@@ -264,5 +264,5 @@ resource "aws_ecs_service" "web" {
     container_port   = 80
   }
 
- 
+
 }

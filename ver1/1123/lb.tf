@@ -49,7 +49,7 @@ resource "aws_lb_listener" "was-alb" {
   certificate_arn   = aws_acm_certificate.wildcard_cert.arn
   ssl_policy        = "ELBSecurityPolicy-TLS13-1-2-2021-06"
 
- default_action {
+  default_action {
     type = "fixed-response"
 
     fixed_response {
@@ -113,11 +113,11 @@ resource "aws_lb_listener_rule" "job" {
 
 
 resource "aws_lb_target_group" "was-alb-8080" {
-  name     = "was-alb-tg-8080"
-  port     = 8080
-  protocol = "HTTP"
-  target_type           = "ip"
-  vpc_id   = aws_vpc.vpc.id
+  name        = "was-alb-tg-8080"
+  port        = 8080
+  protocol    = "HTTP"
+  target_type = "ip"
+  vpc_id      = aws_vpc.vpc.id
 
   health_check {
     path     = "/"
@@ -126,11 +126,11 @@ resource "aws_lb_target_group" "was-alb-8080" {
 }
 
 resource "aws_lb_target_group" "was-alb-8888" {
-  name     = "was-alb-tg-8888"
-  port     = 8888
-  protocol = "HTTP"
-  target_type           = "ip"
-  vpc_id   = aws_vpc.vpc.id
+  name        = "was-alb-tg-8888"
+  port        = 8888
+  protocol    = "HTTP"
+  target_type = "ip"
+  vpc_id      = aws_vpc.vpc.id
 
   health_check {
     path     = "/"
@@ -198,7 +198,7 @@ resource "aws_lb_listener" "web-alb" {
   certificate_arn   = aws_acm_certificate.wildcard_cert.arn
   ssl_policy        = "ELBSecurityPolicy-TLS13-1-2-2021-06"
 
- default_action {
+  default_action {
     type = "fixed-response"
 
     fixed_response {
@@ -242,11 +242,11 @@ resource "aws_lb_listener_rule" "web" {
 }
 
 resource "aws_lb_target_group" "web-alb" {
-  name     = "web-tg"
-  port     = 80
-  protocol = "HTTP"
-  target_type           = "ip"
-  vpc_id   = aws_vpc.vpc.id
+  name        = "web-tg"
+  port        = 80
+  protocol    = "HTTP"
+  target_type = "ip"
+  vpc_id      = aws_vpc.vpc.id
 
   health_check {
     path     = "/"

@@ -75,10 +75,10 @@ resource "aws_db_parameter_group" "mysql" {
   }
   parameter {
     name  = "time_zone"
-    value = "Asia/Seoul" 
+    value = "Asia/Seoul"
   }
-    parameter {
+  parameter {
     name  = "max_user_connections"
-    value = "100" 
+    value = "100"
   }
 }
