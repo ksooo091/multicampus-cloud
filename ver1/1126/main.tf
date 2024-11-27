@@ -44,6 +44,12 @@ resource "aws_iam_role_policy_attachment" "github" {
     policy_arn = "arn:aws:iam::aws:policy/AmazonEC2ContainerRegistryFullAccess"
 }
 
+resource "aws_iam_role_policy_attachment" "github_ecs" {
+    role       = aws_iam_role.github_role.name
+    policy_arn = "arn:aws:iam::aws:policy/AmazonECS_FullAccess"
+}
+
+
 output "role_arn" {
   value = aws_iam_role.github_role.arn
 }
