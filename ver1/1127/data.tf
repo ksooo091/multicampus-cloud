@@ -21,3 +21,12 @@ data "hcp_vault_secrets_app" "aws_app" {
 }
 
 
+data "aws_ami" "al-recent" {
+  most_recent = true
+
+  filter {
+    name   = "name"
+    values = ["al2023-ami-20*-x86_64"]
+  }
+  owners = ["137112412989"]
+}

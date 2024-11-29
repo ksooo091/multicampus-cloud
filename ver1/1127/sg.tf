@@ -228,7 +228,7 @@ resource "aws_vpc_security_group_egress_rule" "monitoring" {
 resource "aws_vpc_security_group_ingress_rule" "monitoring" {
   for_each = {
     ssh  = { from_port = 22, to_port = 22 }
-    app1 = { from_port = 8080, to_port = 8080 }
+    app1 = { from_port = 80, to_port = 80 }
     app2 = { from_port = 3000, to_port = 3000 }
   }
 

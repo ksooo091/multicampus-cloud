@@ -1,0 +1,68 @@
+services:
+  postgres-server:
+    container_name: postgres-server
+    image: postgres:13.0-alpine
+    restart: always
+    environment:  
+      POSTGRES_USER: zabbix
+      POSTGRES_PASSWORD: passwd!Q
+      POSTGRES_DB: zabbix
+      PG_DATA: /var/lib/postgresql/data/pgdata
+
+  zabbix-server:
+    container_name: zabbix-server
+    image: zabbix/zabbix-server-pgsql:alpine-latest #ubuntu-7.0.6
+    restart: always
+    environment:
+      POSTGRES_USER: zabbix
+      POSTGRES_PASSWORD: passwd!Q
+      POSTGRES_DB: zabbix
+      ZBX_HISTORYSTORAGETYPES: log,text
+      ZBX_DEBUGLEVEL: 1
+      ZBX_HOUSEKEEPINGFREQUENCY: 1
+      ZBX_MAXHOUSEKEEPERDELETE: 5000
+    depends_on:
+      - postgres-server
+    volumes:
+      - ./volumes/zabbix/alertscripts:/usr/lib/zabbix/alertscripts
+
+  zabbix-frontend:
+    container_name: zabbix-frontend
+    image: zabbix/zabbix-web-nginx-pgsql:alpine-latest #ubuntu-7.0.6
+    restart: always
+    ports:
+      - '80:8080'
+    environment:
+      POSTGRES_USER: zabbix
+      POSTGRES_PASSWORD: passwd!Q
+      POSTGRES_DB: zabbix
+      ZBX_SERVER_HOST: zabbix-server
+      ZBX_POSTMAXSIZE: 64M
+      PHP_TZ: "Asia/Seoul"  
+      ZBX_MAXEXECUTIONTIME: 500
+    depends_on:
+      - postgres-server
+      - zabbix-server
+
+  zabbix-agent:
+    container_name: zabbix-agent
+    image: zabbix/zabbix-agent:alpine-latest #ubuntu-7.0.6
+    privileged: true
+    restart: unless-stopped
+    environment:
+      - ZBX_SERVER_HOST=zabbix-server
+      - ZBX_HOSTNAME=Zabbix server
+    
+  grafana:
+    container_name: grafana
+    image: grafana/grafana-oss
+    restart: always
+    ports:
+      - '3000:3000'
+    environment: 
+      - GF_INSTALL_PLUGINS=alexanderzobnin-zabbix-app
+      - GF_SERVER_DOMAIN=grafana.mcstudy.shop
+      - GF_SERVER_ROOT_URL=https://grafana.mcstudy.shop/
+    depends_on:
+      - postgres-server
+      - zabbix-server
