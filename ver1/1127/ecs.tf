@@ -218,7 +218,7 @@ resource "aws_appautoscaling_target" "ecs_target" {
   service_namespace = "ecs"
 
   depends_on = [
-    aws_ecs_service.was
+    aws_ecs_service.web
   ]
 }
 
@@ -267,8 +267,8 @@ resource "aws_cloudwatch_metric_alarm" "cpu_alert" {
       stat        = "Sum"
 
       dimensions = {
-        ClusterName = aws_ecs_cluster.ecs_cluster.name
-        ServiceName = aws_ecs_service.was.name
+        ClusterName = aws_ecs_cluster.ecs-cluster.name
+        ServiceName = aws_ecs_service.web.name
       }
     }
   }
@@ -283,8 +283,8 @@ resource "aws_cloudwatch_metric_alarm" "cpu_alert" {
       stat        = "Sum"
 
       dimensions = {
-        ClusterName = aws_ecs_cluster.ecs_cluster.name
-        ServiceName = aws_ecs_service.was.name
+        ClusterName = aws_ecs_cluster.ecs-cluster.name
+        ServiceName = aws_ecs_service.web.name
       }
     }
   }
