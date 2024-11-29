@@ -1,4 +1,4 @@
-data "aws_iam_policy_document" "ecs_task_execution_role" {
+data "aws_iam_policy_document" "ecs_task_execution" {
   version = "2012-10-17"
   statement {
     sid     = ""
@@ -12,12 +12,15 @@ data "aws_iam_policy_document" "ecs_task_execution_role" {
   }
 }
 
+
+
+
 resource "aws_iam_role" "ecs" {
   name               = "ecs-study"
-  assume_role_policy = data.aws_iam_policy_document.ecs_task_execution_role.json
+  assume_role_policy = data.aws_iam_policy_document.ecs_task_execution.json
 }
 
-resource "aws_iam_role_policy_attachment" "ecs_task_execution_role" {
+resource "aws_iam_role_policy_attachment" "ecs_task_execution" {
   role       = aws_iam_role.ecs.name
   policy_arn = "arn:aws:iam::aws:policy/service-role/AmazonECSTaskExecutionRolePolicy"
 }
@@ -146,7 +149,9 @@ resource "aws_ecs_task_definition" "web" {
     host_port          = "80",
     app_name           = "web"
   })
-
+  lifecycle {
+    ignore_changes = [container_definitions]
+  }
 }
 
 
@@ -171,6 +176,116 @@ resource "aws_ecs_service" "web" {
     container_name   = "web"
     container_port   = 80
   }
+  lifecycle {
+    ignore_changes = [desired_count]
+  }
+
+}
+
+////// auto scail
+
+resource "aws_iam_role" "ecs_autoscale" {
+  name = "testproject-ecs-autoscale-iam-role"
+
+  assume_role_policy = <<EOF
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Sid": "Autoscaling",
+      "Effect": "Allow",
+      "Principal": {
+        "Service": "application-autoscaling.amazonaws.com"
+      },
+      "Action": "sts:AssumeRole"
+    }
+  ]
+}
+EOF
+}
+
+resource "aws_iam_role_policy_attachment" "ecs_autoscale" {
+  role = aws_iam_role.ecs_autoscale.name
+  policy_arn = "arn:aws:iam::aws:policy/service-role/AmazonEC2ContainerServiceAutoscaleRole"
+}
+
+resource "aws_appautoscaling_target" "ecs_target" {
+  min_capacity = 2
+  max_capacity = 4
+  resource_id = aws_ecs_service.web.id
+  role_arn = aws_iam_role.ecs_autoscale.arn
+  scalable_dimension = "ecs:service:DesiredCount"
+  service_namespace = "ecs"
+
+  depends_on = [
+    aws_ecs_service.was
+  ]
+}
+
+resource "aws_appautoscaling_policy" "ecs_policy_scale_out" {
+  name = "scale-out"
+  policy_type = "StepScaling"
+  resource_id = aws_appautoscaling_target.ecs_target.resource_id
+  scalable_dimension = aws_appautoscaling_target.ecs_target.scalable_dimension
+  service_namespace = aws_appautoscaling_target.ecs_target.service_namespace
+
+  step_scaling_policy_configuration {
+    adjustment_type = "PercentChangeInCapacity"
+    cooldown = 1
+    metric_aggregation_type = "Average"
+
+    step_adjustment {
+      metric_interval_lower_bound = 0
+      scaling_adjustment = 1
+    }
+  }
+}
 
 
+resource "aws_cloudwatch_metric_alarm" "cpu_alert" {
+  alarm_name                = "testproject-cpu-alert"
+  comparison_operator       = "GreaterThanOrEqualToThreshold"
+  evaluation_periods        = "2"
+  threshold                 = "70"
+  datapoints_to_alarm       = "2"
+  insufficient_data_actions = []
+  alarm_actions             = [aws_appautoscaling_policy.ecs_policy_scale_out.arn]
+
+  metric_query {
+    id          = "cpualert"
+    expression  = "mm1m0 * 100 / mm0m0"
+    return_data = "true"
+  }
+
+  metric_query {
+    id = "mm1m0"
+
+    metric {
+      metric_name = "CpuUtilized"
+      namespace   = "ECS/ContainerInsights"
+      period      = "30"
+      stat        = "Sum"
+
+      dimensions = {
+        ClusterName = aws_ecs_cluster.ecs_cluster.name
+        ServiceName = aws_ecs_service.was.name
+      }
+    }
+  }
+
+  metric_query {
+    id = "mm0m0"
+
+    metric {
+      metric_name = "CpuReserved"
+      namespace   = "ECS/ContainerInsights"
+      period      = "30"
+      stat        = "Sum"
+
+      dimensions = {
+        ClusterName = aws_ecs_cluster.ecs_cluster.name
+        ServiceName = aws_ecs_service.was.name
+      }
+    }
+  }
 }
