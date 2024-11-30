@@ -32,96 +32,96 @@ resource "aws_ecs_cluster" "ecs-cluster" {
 
 
 
-# resource "aws_ecs_task_definition" "app" {
-#   family                   = "app"
-#   network_mode             = "awsvpc"
-#   execution_role_arn       = aws_iam_role.ecs.arn
-#   cpu                      = 512
-#   memory                   = 1024
-#   requires_compatibilities = ["FARGATE"]
-#   container_definitions = templatefile("${path.module}/task.tamplate", {
-#     aws_ecr_repository = "${data.aws_caller_identity.current.account_id}.dkr.ecr.ap-northeast-2.amazonaws.com/app",
-#     tag                = "2",
-#     container_port     = "8080",
-#     host_port          = "8080",
-#     app_name           = "app"
-#   })
+resource "aws_ecs_task_definition" "app" {
+  family                   = "app"
+  network_mode             = "awsvpc"
+  execution_role_arn       = aws_iam_role.ecs.arn
+  cpu                      = 512
+  memory                   = 1024
+  requires_compatibilities = ["FARGATE"]
+  container_definitions = templatefile("${path.module}/task.tamplate", {
+    aws_ecr_repository = "${data.aws_caller_identity.current.account_id}.dkr.ecr.ap-northeast-2.amazonaws.com/app",
+    tag                = "latest",
+    container_port     = "8080",
+    host_port          = "8080",
+    app_name           = "app"
+  })
 
-# }
-
-
+}
 
 
-# resource "aws_ecs_service" "app" {
-#   name                 = "app"
-#   cluster              = aws_ecs_cluster.ecs-cluster.id
-#   task_definition      = aws_ecs_task_definition.app.arn
-#   desired_count        = 2
-#   force_new_deployment = true
-#   launch_type          = "FARGATE"
-
-#   network_configuration {
-#     security_groups = [aws_security_group.was8080.id]
-#     subnets         = aws_subnet.was[*].id
-#   }
-
-#   load_balancer {
-#     target_group_arn = aws_lb_target_group.was-alb-8080.arn
-#     container_name   = "app"
-#     container_port   = 8080
-#   }
 
 
-# }
+resource "aws_ecs_service" "app" {
+  name                 = "app"
+  cluster              = aws_ecs_cluster.ecs-cluster.id
+  task_definition      = aws_ecs_task_definition.app.arn
+  desired_count        = 2
+  force_new_deployment = true
+  launch_type          = "FARGATE"
+
+  network_configuration {
+    security_groups = [aws_security_group.was.id]
+    subnets         = [aws_subnet.private[2].id,aws_subnet.private[3].id]
+  }
+
+  load_balancer {
+    target_group_arn = aws_lb_target_group.was-alb-8080.arn
+    container_name   = "app"
+    container_port   = 8080
+  }
 
 
+}
 
 
 
 
 
-# resource "aws_ecs_task_definition" "job" {
-#   family                   = "job"
-#   network_mode             = "awsvpc"
-#   execution_role_arn       = aws_iam_role.ecs.arn
-#   cpu                      = 512
-#   memory                   = 1024
-#   requires_compatibilities = ["FARGATE"]
-#   container_definitions = templatefile("${path.module}/task.tamplate", {
-#     aws_ecr_repository = "${data.aws_caller_identity.current.account_id}.dkr.ecr.ap-northeast-2.amazonaws.com/job",
-#     tag                = "3",
-#     container_port     = "8888",
-#     host_port          = "8888",
-#     app_name           = "job"
-#   })
-
-# }
 
 
+resource "aws_ecs_task_definition" "job" {
+  family                   = "job"
+  network_mode             = "awsvpc"
+  execution_role_arn       = aws_iam_role.ecs.arn
+  cpu                      = 512
+  memory                   = 1024
+  requires_compatibilities = ["FARGATE"]
+  container_definitions = templatefile("${path.module}/task.tamplate", {
+    aws_ecr_repository = "${data.aws_caller_identity.current.account_id}.dkr.ecr.ap-northeast-2.amazonaws.com/job",
+    tag                = "latest",
+    container_port     = "8888",
+    host_port          = "8888",
+    app_name           = "job"
+  })
+
+}
 
 
 
-# resource "aws_ecs_service" "job" {
-#   name                 = "job"
-#   cluster              = aws_ecs_cluster.ecs-cluster.id
-#   task_definition      = aws_ecs_task_definition.job.arn
-#   desired_count        = 2
-#   force_new_deployment = true
-#   launch_type          = "FARGATE"
-
-#   network_configuration {
-#     security_groups = [aws_security_group.was.id]
-#     subnets         = aws_subnet.was[*].id
-#   }
-
-#   load_balancer {
-#     target_group_arn = aws_lb_target_group.was-alb-8888.arn
-#     container_name   = "job"
-#     container_port   = 8888
-#   }
 
 
-# }
+resource "aws_ecs_service" "job" {
+  name                 = "job"
+  cluster              = aws_ecs_cluster.ecs-cluster.id
+  task_definition      = aws_ecs_task_definition.job.arn
+  desired_count        = 2
+  force_new_deployment = true
+  launch_type          = "FARGATE"
+
+  network_configuration {
+    security_groups = [aws_security_group.was.id]
+    subnets         = [aws_subnet.private[2].id,aws_subnet.private[3].id]
+  }
+
+  load_balancer {
+    target_group_arn = aws_lb_target_group.was-alb-8888.arn
+    container_name   = "job"
+    container_port   = 8888
+  }
+
+
+}
 
 
 
@@ -143,7 +143,7 @@ resource "aws_ecs_task_definition" "web" {
   memory                   = 1024
   requires_compatibilities = ["FARGATE"]
   container_definitions = templatefile("${path.module}/task.tamplate", {
-    aws_ecr_repository = "${data.aws_caller_identity.current.account_id}.dkr.ecr.ap-northeast-2.amazonaws.com/web",
+    aws_ecr_repository = "${data.aws_caller_identity.current.account_id}.dkr.ecr.ap-northeast-2.amazonaws.com/front",
     tag                = "latest",
     container_port     = "80",
     host_port          = "80",
@@ -212,14 +212,11 @@ resource "aws_iam_role_policy_attachment" "ecs_autoscale" {
 resource "aws_appautoscaling_target" "ecs_target" {
   min_capacity = 2
   max_capacity = 4
-  resource_id = aws_ecs_service.web.id
+  resource_id =  "service/${aws_ecs_cluster.ecs-cluster.name}/${aws_ecs_service.web.name}" 
   role_arn = aws_iam_role.ecs_autoscale.arn
   scalable_dimension = "ecs:service:DesiredCount"
   service_namespace = "ecs"
 
-  depends_on = [
-    aws_ecs_service.web
-  ]
 }
 
 resource "aws_appautoscaling_policy" "ecs_policy_scale_out" {

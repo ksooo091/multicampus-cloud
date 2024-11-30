@@ -232,7 +232,7 @@ resource "aws_vpc_security_group_ingress_rule" "monitoring" {
     app2 = { from_port = 3000, to_port = 3000 }
   }
 
-  security_group_id = aws_security_group.was-alb.id
+  security_group_id = aws_security_group.monitoring.id
 
   from_port   = each.value.from_port
   to_port     = each.value.to_port

@@ -1,3 +1,34 @@
+data "aws_iam_policy_document" "ssm" {
+  version = "2012-10-17"
+  statement {
+    sid     = ""
+    effect  = "Allow"
+    actions = ["sts:AssumeRole"]
+
+    principals {
+      type        = "Service"
+      identifiers = ["ec2.amazonaws.com"]
+    }
+  }
+}
+
+resource "aws_iam_instance_profile" "ssm" {
+  name = "ssm-role"
+  role = aws_iam_role.ssm.name
+}
+
+
+resource "aws_iam_role" "ssm" {
+  name               = "ssm-role"
+  assume_role_policy = data.aws_iam_policy_document.ssm.json
+}
+
+resource "aws_iam_role_policy_attachment" "ssm" {
+  role       = aws_iam_role.ssm.name
+  policy_arn = "arn:aws:iam::aws:policy/AmazonSSMManagedInstanceCore"
+}
+
+
 resource "aws_instance" "monitoring" {
   ami           = data.aws_ami.al-recent.id
   instance_type = "t3.large"
@@ -7,7 +38,7 @@ resource "aws_instance" "monitoring" {
   tags = {
     Name = "monitoring Server"
   }
-
+  iam_instance_profile = aws_iam_instance_profile.ssm.name
   metadata_options {
     http_endpoint               = "enabled"
     http_tokens                 = "required"
